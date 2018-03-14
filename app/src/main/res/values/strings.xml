@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BeaconApp</string>
+    <string name="import_name">Import</string>
+    <string name="gallery">Gallery</string>
+    <string name="slideshow">Slideshow</string>
+    <string name="tools">Tools</string>
+</resources>
