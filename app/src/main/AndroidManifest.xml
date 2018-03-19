@@ -3,6 +3,7 @@
     package="com.example.bjh20.beaconapp">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:name="com.example.bjh20.beaconapp.MyApplicationName"
         android:allowBackup="true"
@@ -11,13 +12,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.OtherActivity" />
+        <activity android:name=".activity.AboutUsActivity" />
+        <activity android:name=".activity.PrivacyPolicyActivity" />
+
     </application>
 
 </manifest>
