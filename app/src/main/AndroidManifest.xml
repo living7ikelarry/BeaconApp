@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.bjh20.beaconapp">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -19,9 +20,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.OtherActivity" />
-        <activity android:name=".activity.AboutUsActivity" />
-        <activity android:name=".activity.PrivacyPolicyActivity" />
+        <activity
+            tools:targetApi="17"
+            android:name=".activity.AboutUsActivity"
+            android:parentActivityName="com.example.bjh20.beaconapp.activity.MainActivity" />
+        <activity
+            tools:targetApi="17"
+            android:name=".activity.PrivacyPolicyActivity"
+            android:parentActivityName="com.example.bjh20.beaconapp.activity.MainActivity" />
 
     </application>
 

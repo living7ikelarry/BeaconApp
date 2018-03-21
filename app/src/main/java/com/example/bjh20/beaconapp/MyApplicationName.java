@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 import com.example.bjh20.beaconapp.activity.MainActivity;
 
@@ -26,7 +27,9 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 import org.altbeacon.beacon.Identifier;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by bjh20 on 3/13/2018.
@@ -38,6 +41,11 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
     private BackgroundPowerSaver backgroundPowerSaver;
     private MainActivity rangingActivity = null;
     private BeaconManager beaconManager;
+    private List<String> notificationList;
+    //private ArrayAdapter<String> adapter;
+
+
+    int notificationCount = 0;
 
     @Override
     public void onCreate() {
@@ -61,6 +69,11 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
         //beaconManager.setForegroundScanPeriod(50000l);
 
         beaconManager.bind(this);
+
+        notificationList = new ArrayList<String>();
+
+        //adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, notificationList);
+
     }
 
     @Override
@@ -89,7 +102,7 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
     }
 
     @TargetApi(16)
-    private void sendNotification(String text) {
+    private void sendNotification(String text, int notificationCount) {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this)
                         .setContentTitle("Beacon Reference Application")
@@ -109,7 +122,21 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
         builder.setContentIntent(resultPendingIntent);
         NotificationManager notificationManager =
                 (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(1, builder.build());
+        if (notificationCount >= 50) {
+            notificationManager.cancelAll();
+        }
+        notificationManager.notify(notificationCount, builder.build());
+        notificationList.add(text);
+        if (notificationList != null && !notificationList.isEmpty()) {
+            //adapter.add(notificationList.get(notificationList.size()-1));
+        }
+        //adapter.notifyDataSetChanged();
+    }
+
+    public String[] getList() {
+        String [] notificationListArray = new String[notificationList.size()];
+        notificationListArray = notificationList.toArray(notificationListArray);
+        return notificationListArray;
     }
 
     @Override
@@ -118,7 +145,13 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
             for (Beacon b : beacons) {
                 if(b.getId3().toInt() == 1) {
                     Log.e(TAG, "Beacon with my Instance ID found!");
-                    sendNotification("Beacon with my Instance ID found!");
+                    sendNotification("Beacon with my Instance ID found!", notificationCount);
+                    if (notificationCount < 50) {
+                        notificationCount++;
+                    }
+                    else {
+                        notificationCount = 0;
+                    }
                 }
             }
         }
