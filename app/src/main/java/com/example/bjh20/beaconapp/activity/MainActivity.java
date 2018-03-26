@@ -38,7 +38,6 @@ import com.example.bjh20.beaconapp.other.CircleTransform;
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
-    private static final int PERMISSION_REQUEST_INTERNET = 2;
     private static final String TAG = "MainActivity";
     //private DrawerLayout mDrawerLayout;
 
@@ -128,21 +127,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onDismiss(DialogInterface dialog) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
-                        }
-                    }
-                });
-                builder.show();
-            }
-            if (this.checkSelfPermission(Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("This app needs internet access");
-                builder.setMessage("Please grant internet access so this app can detect beacons.");
-                builder.setPositiveButton(android.R.string.ok, null);
-                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            requestPermissions(new String[]{Manifest.permission.INTERNET}, PERMISSION_REQUEST_INTERNET);
                         }
                     }
                 });
@@ -429,25 +413,6 @@ public class MainActivity extends AppCompatActivity {
                     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("Functionality limited");
                     builder.setMessage("Since location access has not been granted, this app will not be able to discover beacons when in the background.");
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                            }
-                        });
-                    }
-                    builder.show();
-                }
-                return;
-            }
-            case PERMISSION_REQUEST_INTERNET: {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "internet permission granted");
-                } else {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Functionality limited");
-                    builder.setMessage("Since internet access has not been granted, this app will not be able to discover beacons when in the background.");
                     builder.setPositiveButton(android.R.string.ok, null);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                         builder.setOnDismissListener(new DialogInterface.OnDismissListener() {

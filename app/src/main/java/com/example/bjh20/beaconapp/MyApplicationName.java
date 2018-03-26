@@ -42,7 +42,6 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
     private MainActivity rangingActivity = null;
     private BeaconManager beaconManager;
     private List<String> notificationList;
-    //private ArrayAdapter<String> adapter;
 
 
     int notificationCount = 0;
@@ -63,28 +62,21 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
 
         backgroundPowerSaver = new BackgroundPowerSaver(this);
 
-        beaconManager.setBackgroundScanPeriod(5000l);
-        beaconManager.setBackgroundBetweenScanPeriod(1000l);
-        //beaconManager.setForegroundBetweenScanPeriod(10000l);
-        //beaconManager.setForegroundScanPeriod(50000l);
+        beaconManager.setBackgroundScanPeriod(5000);
+        beaconManager.setBackgroundBetweenScanPeriod(1000);
+        beaconManager.setForegroundScanPeriod(5000);
+        beaconManager.setForegroundBetweenScanPeriod(1000);
+
 
         beaconManager.bind(this);
 
-        notificationList = new ArrayList<String>();
-
-        //adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, notificationList);
+        notificationList = new ArrayList<>();
 
     }
 
     @Override
     public void didEnterRegion(Region region) {
         Log.d(TAG, "did enter region.");
-        try {
-            beaconManager.startRangingBeaconsInRegion(region);
-        }
-        catch (RemoteException e) {
-            if (BuildConfig.DEBUG) Log.d(TAG, "Can't start ranging");
-        }
     }
 
     @Override
@@ -96,9 +88,19 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
         }
     }
 
+    //Found at then when already in the range of beacon, didEnterRegion will fail to activate
+    //Instead, utilizing didDetermineStateForRegion worked in the way I needed it to
     @Override
     public void didDetermineStateForRegion(int state, Region region) {
         Log.d(TAG,"I have just switched from seeing/not seeing beacons: " + state);
+        if (state == 1) {
+            try {
+                beaconManager.startRangingBeaconsInRegion(region);
+            }
+            catch (RemoteException e) {
+                if (BuildConfig.DEBUG) Log.d(TAG, "Can't start ranging");
+            }
+        }
     }
 
     @TargetApi(16)
@@ -127,10 +129,6 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
         }
         notificationManager.notify(notificationCount, builder.build());
         notificationList.add(text);
-        if (notificationList != null && !notificationList.isEmpty()) {
-            //adapter.add(notificationList.get(notificationList.size()-1));
-        }
-        //adapter.notifyDataSetChanged();
     }
 
     public String[] getList() {
@@ -144,8 +142,8 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
         if (beacons.size() > 0) {
             for (Beacon b : beacons) {
                 if(b.getId3().toInt() == 1) {
-                    Log.e(TAG, "Beacon with my Instance ID found!");
-                    sendNotification("Beacon with my Instance ID found!", notificationCount);
+                    Log.e(TAG, "Beacon with my ID found!");
+                    sendNotification("Beacon with my ID found!", notificationCount);
                     if (notificationCount < 50) {
                         notificationCount++;
                     }

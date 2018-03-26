@@ -19,7 +19,8 @@ import java.util.List;
 
 public class BeaconsFragment extends Fragment{
 
-    private String[] items = {"Banana", "Lime"};
+    //private String[] items = {"Banana", "Lime"};
+    //test String^^
 
     public BeaconsFragment() {
 
@@ -32,9 +33,10 @@ public class BeaconsFragment extends Fragment{
 
         ListView beaconListView = (ListView) view.findViewById(R.id.beacon_list_view);
         MyApplicationName app = new MyApplicationName();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, items);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, app.getList());
         beaconListView.setAdapter(adapter);
         //adapter.notifyDataSetChanged();
+        //this is likely unnecessary^^
 
         return view;
     }
