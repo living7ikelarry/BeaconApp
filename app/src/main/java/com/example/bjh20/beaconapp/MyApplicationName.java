@@ -28,8 +28,11 @@ import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 import org.altbeacon.beacon.Identifier;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by bjh20 on 3/13/2018.
@@ -45,6 +48,15 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
 
 
     int notificationCount = 0;
+
+    //starting time
+    Date currentDate = new Date();
+    long currentTime = currentDate.getTime();
+    int currentTimeInSeconds = (int) TimeUnit.MILLISECONDS.toSeconds(currentTime);
+
+    //create next time
+    long nextTime;
+    int nextTimeInSeconds;
 
     @Override
     public void onCreate() {
@@ -131,6 +143,22 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
         notificationList.add(text);
     }
 
+    public void notificationWithDelay() {
+        Date nextDate = new Date();
+        nextTime = nextDate.getTime();
+        nextTimeInSeconds = (int) TimeUnit.MILLISECONDS.toSeconds(nextTime);
+        if(nextTimeInSeconds >= currentTimeInSeconds + 300) {
+            sendNotification("Beacon with my ID found!", notificationCount);
+            if (notificationCount < 50) {
+                notificationCount++;
+            }
+            else {
+                notificationCount = 0;
+            }
+            currentTimeInSeconds = nextTimeInSeconds;
+        }
+    }
+
     public String[] getList() {
         String [] notificationListArray = new String[notificationList.size()];
         notificationListArray = notificationList.toArray(notificationListArray);
@@ -143,13 +171,7 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
             for (Beacon b : beacons) {
                 if(b.getId3().toInt() == 1) {
                     Log.e(TAG, "Beacon with my ID found!");
-                    sendNotification("Beacon with my ID found!", notificationCount);
-                    if (notificationCount < 50) {
-                        notificationCount++;
-                    }
-                    else {
-                        notificationCount = 0;
-                    }
+                    notificationWithDelay();
                 }
             }
         }
