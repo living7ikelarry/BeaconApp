@@ -13,14 +13,14 @@ import com.example.bjh20.beaconapp.R;
 
 import java.util.List;
 
+import static com.example.bjh20.beaconapp.MyApplicationName.beaconList;
+
+
 /**
  * Created by bjh20 on 3/15/2018.
  */
 
 public class BeaconsFragment extends Fragment{
-
-    //private String[] items = {"Banana", "Lime"};
-    //test String^^
 
     public BeaconsFragment() {
 
@@ -32,8 +32,9 @@ public class BeaconsFragment extends Fragment{
         View view = inflater.inflate(R.layout.fragment_beacons, container, false);
 
         ListView beaconListView = (ListView) view.findViewById(R.id.beacon_list_view);
-        MyApplicationName app = new MyApplicationName();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, app.getList());
+        String[] beaconListArray = new String[beaconList.size()];
+        beaconListArray = beaconList.toArray(beaconListArray);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, beaconListArray);
         beaconListView.setAdapter(adapter);
         //adapter.notifyDataSetChanged();
         //this is likely unnecessary^^
@@ -48,5 +49,4 @@ public class BeaconsFragment extends Fragment{
         // EditText etFoo = (EditText) view.findViewById(R.id.etFoo);
 
     }
-
 }

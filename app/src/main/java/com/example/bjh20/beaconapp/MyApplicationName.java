@@ -8,13 +8,17 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.SharedPreferencesCompat;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import com.example.bjh20.beaconapp.activity.MainActivity;
+import com.example.bjh20.beaconapp.other.FetchData;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
@@ -44,15 +48,26 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
     private BackgroundPowerSaver backgroundPowerSaver;
     private MainActivity rangingActivity = null;
     private BeaconManager beaconManager;
-    private List<String> notificationList;
+    private ArrayList<Integer> currentTimeInSeconds;
+    private ArrayList<Integer> firstSawBeacon;
+
+
+    public static List<String> notificationList;
+    public static List<String> beaconList;
+
+    //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 
     int notificationCount = 0;
 
-    //starting time
-    Date currentDate = new Date();
-    long currentTime = currentDate.getTime();
-    int currentTimeInSeconds = (int) TimeUnit.MILLISECONDS.toSeconds(currentTime);
+    String[] beaconNames = new String[4];
+    String[] beaconMessages = new String[4];
+
+
+    //is this the first notification? necessary boolean for the timer/delay
+    boolean isFirstNotificationSinceOpening = true;
+
+
 
     //create next time
     long nextTime;
@@ -63,12 +78,10 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
         super.onCreate();
         Log.d(TAG, "App started up");
         beaconManager = BeaconManager.getInstanceForApplication(this);
-        // To detect proprietary beacons, you must add a line like below corresponding to your beacon
-        // type.  Do a web search for "setBeaconLayout" to get the proper expression.
+
         beaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
 
-        // wake up the app when any beacon is seen (you can specify specific id filers in the parameters below)
         Region region = new Region("region1", Identifier.parse("b9407f30-f5f8-466e-aff9-25556b57fe6d"), null, null);
         regionBootstrap = new RegionBootstrap(this, region);
 
@@ -83,6 +96,38 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
         beaconManager.bind(this);
 
         notificationList = new ArrayList<>();
+        beaconList = new ArrayList<>();
+        currentTimeInSeconds = new ArrayList<>();
+        firstSawBeacon = new ArrayList<>();
+        //fill arrayList so not null initially. can add/alter values later this way
+        for (int i = 0; i < 10; i++) {
+            currentTimeInSeconds.add(0);
+        }
+        //fill beaconList as well
+        for (int i = 0; i < 3; i++) {
+            beaconList.add("");
+            notificationList.add("");
+            firstSawBeacon.add(0);
+        }
+
+        //set initial time
+        Date currentDate = new Date();
+        long currentTime = currentDate.getTime();
+        currentTimeInSeconds.add(0, (int)TimeUnit.MILLISECONDS.toSeconds(currentTime));
+
+        //fetch beacon data from json api
+        FetchData fetchBeaconData = new FetchData();
+        fetchBeaconData.execute();
+
+        //hard-coded names for now
+        beaconNames[1] = "Taco Bell";
+        beaconNames[2] = "Burger King";
+        beaconNames[3] = "Chick Fil A";
+
+        //hard coded notification messages for now
+        beaconMessages[1] = "Welcome to Taco Bell!";
+        beaconMessages[2] = "Welcome to Burger King!";
+        beaconMessages[3] = "Welcome to Chick Fil A!";
 
     }
 
@@ -116,7 +161,7 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
     }
 
     @TargetApi(16)
-    private void sendNotification(String text, int notificationCount) {
+    private void sendNotification(String text, int majorID) {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this)
                         .setContentTitle("Beacon Reference Application")
@@ -136,43 +181,61 @@ public class MyApplicationName extends Application implements BootstrapNotifier 
         builder.setContentIntent(resultPendingIntent);
         NotificationManager notificationManager =
                 (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        //unnecessary now
+        /*
         if (notificationCount >= 50) {
             notificationManager.cancelAll();
         }
-        notificationManager.notify(notificationCount, builder.build());
-        notificationList.add(text);
+        */
+        notificationManager.notify(majorID, builder.build());
+        notificationList.add(majorID, text);
     }
 
-    public void notificationWithDelay() {
+    public void notificationWithDelay(int majorID) {
         Date nextDate = new Date();
         nextTime = nextDate.getTime();
         nextTimeInSeconds = (int) TimeUnit.MILLISECONDS.toSeconds(nextTime);
-        if(nextTimeInSeconds >= currentTimeInSeconds + 300) {
-            sendNotification("Beacon with my ID found!", notificationCount);
+        if(nextTimeInSeconds >= currentTimeInSeconds.get(majorID) + 300 || isFirstNotificationSinceOpening) {
+            sendNotification(beaconMessages[majorID], majorID);
+            //this continually adds notifications which is not what we want moving forward
+            //instead notifications should match beaconID. one notification per beacon for now
+            /*
             if (notificationCount < 50) {
                 notificationCount++;
             }
             else {
                 notificationCount = 0;
             }
-            currentTimeInSeconds = nextTimeInSeconds;
-        }
-    }
+            */
+            currentTimeInSeconds.add(majorID, nextTimeInSeconds);
 
-    public String[] getList() {
-        String [] notificationListArray = new String[notificationList.size()];
-        notificationListArray = notificationList.toArray(notificationListArray);
-        return notificationListArray;
+            if(isFirstNotificationSinceOpening) {
+                isFirstNotificationSinceOpening = false;
+            }
+        }
     }
 
     @Override
     public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
         if (beacons.size() > 0) {
             for (Beacon b : beacons) {
+                //pass id to notification manager instead of this
+                /*
                 if(b.getId3().toInt() == 1) {
                     Log.e(TAG, "Beacon with my ID found!");
                     notificationWithDelay();
                 }
+                */
+
+                //set initial time for specific beacon ranged if it doesn't exist yet
+                if(currentTimeInSeconds.get(b.getId3().toInt()) == null) {
+                    Date newBeaconDate = new Date();
+                    long newBeaconTime = newBeaconDate.getTime();
+                    currentTimeInSeconds.add(b.getId3().toInt(), (int) TimeUnit.MILLISECONDS.toSeconds(newBeaconTime));
+                }
+                beaconList.set(b.getId3().toInt()-1, beaconNames[b.getId3().toInt()]);
+                notificationWithDelay(b.getId3().toInt());
+                Log.e(TAG, "Beacon with ID " + b.getId3().toInt() + " found!");
             }
         }
     }

@@ -35,6 +35,9 @@ import com.example.bjh20.beaconapp.fragment.NotificationsFragment;
 import com.example.bjh20.beaconapp.fragment.SettingsFragment;
 import com.example.bjh20.beaconapp.other.CircleTransform;
 
+import static com.example.bjh20.beaconapp.MyApplicationName.notificationList;
+
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
@@ -160,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(imgProfile);
 
-        // showing dot next to notifications label
+        // showing dot next to notifications label if there are notifications
         navigationView.getMenu().getItem(2).setActionView(R.layout.menu_dot);
     }
 
@@ -365,6 +368,16 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    public void reloadNotificationFragment() {
+        // Reload Notification fragment
+        Fragment frg = null;
+        frg = getSupportFragmentManager().findFragmentByTag(TAG_NOTIFICATIONS);
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.detach(frg);
+        ft.attach(frg);
+        ft.commit();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -379,15 +392,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // user is in notifications fragment
-        // and selected 'Mark all as Read'
-        if (id == R.id.action_mark_all_read) {
-            Toast.makeText(getApplicationContext(), "All notifications marked as read!", Toast.LENGTH_LONG).show();
+        // and selected 'Refresh'
+
+
+        if (id == R.id.action_refresh) {
+            reloadNotificationFragment();
+            Toast.makeText(getApplicationContext(), "Refreshed notification list!", Toast.LENGTH_LONG).show();
         }
+
 
         // user is in notifications fragment
         // and selected 'Clear All'
         if (id == R.id.action_clear_notifications) {
-            Toast.makeText(getApplicationContext(), "Clear all notifications!", Toast.LENGTH_LONG).show();
+            notificationList.clear();
+            reloadNotificationFragment();
+            Toast.makeText(getApplicationContext(), "Clear all notifications from list!", Toast.LENGTH_LONG).show();
         }
 
         return super.onOptionsItemSelected(item);

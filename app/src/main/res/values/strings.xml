@@ -30,7 +30,7 @@
     <string name="activity_title_privacy_policy">Privacy Policy</string>
     <string name="action_clear_all">Clear All</string>
     <string name="action_logout">Logout</string>
-    <string name="action_mark_all_read">Mark All as Read</string>
+    <string name="action_refresh">Refresh</string>
     <string name="privacy_policy">Privacy Policy</string>
 
 </resources>
