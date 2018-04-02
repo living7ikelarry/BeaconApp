@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -35,6 +36,11 @@ import com.example.bjh20.beaconapp.fragment.NotificationsFragment;
 import com.example.bjh20.beaconapp.fragment.SettingsFragment;
 import com.example.bjh20.beaconapp.other.CircleTransform;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static com.example.bjh20.beaconapp.BeaconApplication.beaconAdapter;
+import static com.example.bjh20.beaconapp.BeaconApplication.beaconListView;
 import static com.example.bjh20.beaconapp.BeaconApplication.notificationList;
 
 
@@ -50,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imgNavHeaderBg, imgProfile;
     private TextView txtName, txtWebsite;
     private Toolbar toolbar;
-    private FloatingActionButton fab;
+    private Timer timer;
+    //private FloatingActionButton fab;
 
     // urls to load navigation header background image
     // and profile image
@@ -84,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        //fab = (FloatingActionButton) findViewById(R.id.fab);
 
         // Navigation view header
         navHeader = navigationView.getHeaderView(0);
@@ -96,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         // load toolbar titles from string resources
         activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
 
+        /*
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,9 +111,13 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        */
 
         // load nav menu header data
         loadNavHeader();
+
+        //check for notifications for the navbar
+        checkNotifications();
 
         // initializing navigation menu
         setUpNavigationView();
@@ -146,10 +158,10 @@ public class MainActivity extends AppCompatActivity {
     private void loadNavHeader() {
         // name, website
         txtName.setText("Brian H");
-        txtWebsite.setText("adHere Demo");
+        txtWebsite.setText("Market Beacons Demo");
 
         // loading header background image
-        Glide.with(this).load(R.drawable.material_design_header)
+        Glide.with(this).load(R.drawable.navbar_header)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(imgNavHeaderBg);
@@ -163,7 +175,43 @@ public class MainActivity extends AppCompatActivity {
                 .into(imgProfile);
 
         // showing dot next to notifications label if there are notifications
-        navigationView.getMenu().getItem(2).setActionView(R.layout.menu_dot);
+        //navigationView.getMenu().getItem(2).setActionView(R.layout.menu_dot);
+    }
+
+    private void checkNotifications() {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                if (notificationList.size() > 0) {
+                    // showing dot next to notifications label if there are notifications
+                    Handler refresh = new Handler(Looper.getMainLooper());
+                    refresh.post(new Runnable() {
+                        public void run() {
+                            navigationView.getMenu().getItem(2).setActionView(R.layout.menu_dot);
+                        }
+                    });
+                }
+                else {
+                    //removing dot if there are not
+                    Handler refresh = new Handler(Looper.getMainLooper());
+                    refresh.post(new Runnable() {
+                        public void run() {
+                            navigationView.getMenu().getItem(2).setActionView(null);
+                            //Log.d("notificationCheck", "set to null");
+                        }
+                    });
+                }
+            }
+
+        },0,1000);//Check notifications every second
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timer.cancel();
     }
 
     /***
@@ -183,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
             drawer.closeDrawers();
 
             // show or hide the fab button
-            toggleFab();
+            //toggleFab();
             return;
         }
 
@@ -210,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // show or hide the fab button
-        toggleFab();
+        //toggleFab();
 
         //Closing drawer on item click
         drawer.closeDrawers();
@@ -377,18 +425,6 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
-    public void reloadBeaconFragment() {
-        //Reload beacon fragment if visible currently
-        Fragment frg = null;
-        frg = getSupportFragmentManager().findFragmentByTag(TAG_BEACONS);
-        if (frg != null && frg.isVisible()) {
-            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.detach(frg);
-            ft.attach(frg);
-            ft.commit();
-        }
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -404,8 +440,6 @@ public class MainActivity extends AppCompatActivity {
 
         // user is in notifications fragment
         // and selected 'Refresh'
-
-
         if (id == R.id.action_refresh) {
             reloadNotificationFragment();
             Toast.makeText(getApplicationContext(), "Refreshed notification list!", Toast.LENGTH_LONG).show();
@@ -424,12 +458,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // show or hide the fab
+    /*
     private void toggleFab() {
         if (navItemIndex == 0)
             fab.show();
         else
             fab.hide();
     }
+    */
 
     @Override
     public void onRequestPermissionsResult(int requestCode,

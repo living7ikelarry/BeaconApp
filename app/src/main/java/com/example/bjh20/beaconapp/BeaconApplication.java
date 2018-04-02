@@ -214,13 +214,6 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
         }
         if (state == 0) {
             beaconList.clear();
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                public void run() {
-                    if (beaconAdapter != null) {
-                        beaconAdapter.notifyDataSetChanged();
-                    }
-                }
-            });
         }
     }
 
