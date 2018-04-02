@@ -35,7 +35,7 @@ import com.example.bjh20.beaconapp.fragment.NotificationsFragment;
 import com.example.bjh20.beaconapp.fragment.SettingsFragment;
 import com.example.bjh20.beaconapp.other.CircleTransform;
 
-import static com.example.bjh20.beaconapp.MyApplicationName.notificationList;
+import static com.example.bjh20.beaconapp.BeaconApplication.notificationList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
 
     // urls to load navigation header background image
     // and profile image
-    private static final String urlNavHeaderBg = "https://api.androidhive.info/images/nav-menu-header-bg.jpg";
     private static final String urlProfileImg = "https://lh3.googleusercontent.com/DYT5ex_-FBlArMqDve5E2cSpMG3Sg8TEHtUy4r3NGFCib5XqGNW8Ft0d6MKkdXNBt_oopdLCnydx8Q=s598-rw-no";
 
     // index to identify current nav menu item
@@ -150,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         txtWebsite.setText("adHere Demo");
 
         // loading header background image
-        Glide.with(this).load(urlNavHeaderBg)
+        Glide.with(this).load(R.drawable.material_design_header)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(imgNavHeaderBg);
@@ -376,6 +375,18 @@ public class MainActivity extends AppCompatActivity {
         ft.detach(frg);
         ft.attach(frg);
         ft.commit();
+    }
+
+    public void reloadBeaconFragment() {
+        //Reload beacon fragment if visible currently
+        Fragment frg = null;
+        frg = getSupportFragmentManager().findFragmentByTag(TAG_BEACONS);
+        if (frg != null && frg.isVisible()) {
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.detach(frg);
+            ft.attach(frg);
+            ft.commit();
+        }
     }
 
     @Override

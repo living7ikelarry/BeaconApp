@@ -8,10 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.example.bjh20.beaconapp.MyApplicationName;
 import com.example.bjh20.beaconapp.R;
 
-import static com.example.bjh20.beaconapp.MyApplicationName.notificationList;
+import static com.example.bjh20.beaconapp.BeaconApplication.notificationList;
 
 /**
  * Created by bjh20 on 3/15/2018.

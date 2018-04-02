@@ -8,12 +8,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.example.bjh20.beaconapp.MyApplicationName;
 import com.example.bjh20.beaconapp.R;
 
-import java.util.List;
-
-import static com.example.bjh20.beaconapp.MyApplicationName.beaconList;
+import static com.example.bjh20.beaconapp.BeaconApplication.beaconList;
+import static com.example.bjh20.beaconapp.BeaconApplication.beaconAdapter;
+import static com.example.bjh20.beaconapp.BeaconApplication.beaconListView;
 
 
 /**
@@ -31,13 +30,11 @@ public class BeaconsFragment extends Fragment{
         // Defines the xml file for the fragment
         View view = inflater.inflate(R.layout.fragment_beacons, container, false);
 
-        ListView beaconListView = (ListView) view.findViewById(R.id.beacon_list_view);
+        beaconListView = (ListView) view.findViewById(R.id.beacon_list_view);
         String[] beaconListArray = new String[beaconList.size()];
         beaconListArray = beaconList.toArray(beaconListArray);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, beaconListArray);
-        beaconListView.setAdapter(adapter);
-        //adapter.notifyDataSetChanged();
-        //this is likely unnecessary^^
+        beaconAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, beaconListArray);
+        beaconListView.setAdapter(beaconAdapter);
 
         return view;
     }
