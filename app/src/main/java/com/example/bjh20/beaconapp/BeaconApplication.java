@@ -223,7 +223,7 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
                 new Notification.Builder(this)
                         .setContentTitle(name)
                         .setContentText(description)
-                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setSmallIcon(R.drawable.ibeacon_icon)
                         .setLargeIcon(adImage)
                         .setStyle(new Notification.BigPictureStyle().bigPicture(adImage))
                         .setDefaults(Notification.DEFAULT_SOUND)
@@ -231,7 +231,9 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
         if (Build.VERSION.SDK_INT >= 21) builder.setVibrate(new long[0]);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addNextIntent(new Intent(this, MainActivity.class));
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("adImage", adImage);
+        stackBuilder.addNextIntent(intent);
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(
                         0,
@@ -318,6 +320,7 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
                                 description = data.getString("description");
                                 JSONObject media = data.getJSONObject("mediapath");
                                 link = media.getString("link");
+                                //link = link.replace("localhost", "192.168.1.166");
                             } catch (JSONException error){
                                 Log.d("api", "Can't parse response");
                             }
@@ -351,7 +354,7 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
 
     }
 
-    public void sendImageWithNotification(final int majorID, final String name, final String description, String link) {
+    public void sendImageWithNotification(final int majorID, final String name, final String description, final String link) {
         //retrieves the image from link, creates bitmap, and passes to the notification builder
         //only does so on response from server
         ImageRequest imageRequest = new ImageRequest(link,
@@ -367,7 +370,7 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
                 }, 0, 0, null,
                 new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("api", "volley error on image");
+                        Log.d("api", "volley error on image " + link);
                     }
                 });
         requestQueue.add(imageRequest);

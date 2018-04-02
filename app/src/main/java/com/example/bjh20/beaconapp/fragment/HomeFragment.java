@@ -21,7 +21,8 @@ import static com.example.bjh20.beaconapp.BeaconApplication.beaconListView;
  * Created by bjh20 on 3/15/2018.
  */
 
-public class HomeFragment extends Fragment{
+public class HomeFragment extends Fragment {
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
